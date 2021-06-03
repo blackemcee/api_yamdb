@@ -33,4 +33,3 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     filter_class = CategoryFilter
-
