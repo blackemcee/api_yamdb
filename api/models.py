@@ -85,6 +85,9 @@ class Review(models.Model):
     class Meta:
         unique_together = ('author', 'title',)
 
+    def __str__(self):
+        return f'Review<id№{self.pk}, {self.text[:15]}>'
+
 
 class Comments(models.Model):
     """Модель представления комментариев для рецензии"""
@@ -102,3 +105,6 @@ class Comments(models.Model):
         null=False,
         related_name='comments'
     )
+
+    def __str__(self):
+        return f'Comments <id№{self.pk}, author:{self.review}, {self.text[:15]}>'
