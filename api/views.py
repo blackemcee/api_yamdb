@@ -1,5 +1,5 @@
-from rest_framework import viewsets, filters, mixins
 import django_filters.rest_framework
+from rest_framework import viewsets, filters, mixins
 
 from .filters import CategoryFilter
 from .models import Genre, Category, Title
