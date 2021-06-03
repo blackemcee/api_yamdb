@@ -3,7 +3,7 @@ from rest_framework import viewsets, filters, mixins
 
 from .filters import CategoryFilter
 from .models import Genre, Category, Title
-from .serializers import GenreSerializer, CategorySerializer, TitleSerializer
+from .serializers import (GenreSerializer, CategorySerializer, TitleSerializer, CommentsSerializer, ReviewSerializer)
 
 
 class CustomViewSet(mixins.CreateModelMixin,
@@ -33,3 +33,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     filter_class = CategoryFilter
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+
+
+class CommentsViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentsSerializer

@@ -1,3 +1,4 @@
+import django.core.validators as validators
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -58,3 +59,46 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    text = models.TextField(null=False)
+    score = models.IntegerField(
+        null=False,
+        validators=[
+            validators.MaxValueValidator(10),
+            validators.MinValueValidator(1)
+        ]
+    )
+    pub_date = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+
+    class Meta:
+        unique_together = ('author', 'title',)
+
+
+class Comments(models.Model):
+    """Модель представления комментариев для рецензии"""
+    text = models.TextField(null=False)
+    pub_date = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=False,
+        related_name='comments'
+    )
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        null=False,
+        related_name='comments'
+    )
