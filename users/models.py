@@ -13,8 +13,16 @@ class Roles(TextChoices):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    password = models.CharField(
+        _('password'),
+        null=True, blank=True, max_length=128
+    )
+
+    last_login = None
+
     email = models.EmailField(_('email address'), unique=True, blank=False)
-    is_staff = models.BooleanField(default=True)
+
+    is_staff = models.BooleanField(default=True, null=True)
     username = models.CharField(
         verbose_name='username',
         blank=True, unique=True, max_length=200
@@ -26,24 +34,26 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
     description = models.CharField(
         verbose_name='description',
-        blank=True, max_length=200
+        null=True, blank=True, max_length=200
     )
 
     bio = models.CharField(
         verbose_name='bio',
+        null=True,
         blank=True, max_length=200
     )
 
     first_name = models.CharField(
-        verbose_name='first name',
+        verbose_name='first name', null=True,
         blank=True, max_length=200
     )
     last_name = models.CharField(
-        verbose_name='last name',
+        verbose_name='last name', null=True,
         blank=True, max_length=200
     )
     token = models.CharField(
         verbose_name='token',
+        null=True,
         blank=True, max_length=200
     )
 
@@ -56,6 +66,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return f'{self.email}----{self.username}-----{self.role}'
 
     class Meta:
+        ordering = ['username']
         constraints = [
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_role_valid",
