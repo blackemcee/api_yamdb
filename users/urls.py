@@ -1,8 +1,8 @@
 from django.urls import include, path
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .views import MeViewSet, UserViewSet
+from .views import MeViewSet, UserViewSet, get_tokens_for_user
 
 v1_router = DefaultRouter()
 v1_router.register('', UserViewSet, basename='Users')
@@ -11,8 +11,8 @@ urlpatterns = [
     path('me/', MeViewSet.as_view(
         {'get': 'retrieve', 'patch': 'update'}),
         name='Me'),
-    path('token/', TokenObtainPairView.as_view(),
-         name='token_obtain_pair'
+    path(r'token/', csrf_exempt(get_tokens_for_user),
+         name='get_tokens_for_user'
          ),
     path('', include(v1_router.urls)),
 ]

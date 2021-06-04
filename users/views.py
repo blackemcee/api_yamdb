@@ -1,7 +1,11 @@
+import json
+
+from django.http.response import JsonResponse
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import CustomUser
 
@@ -45,3 +49,19 @@ class MeViewSet(viewsets.ViewSet):
         serializer.is_valid()
         serializer.save()
         return Response(serializer.data)
+
+
+def get_tokens_for_user(request):
+    email = ''
+    if request.content_type == 'multipart/form-data':
+        email = request.POST.get('email')
+    elif request.content_type == 'application/json':
+        body = json.loads(request.body.decode('utf-8'))
+        email = body.get('email')
+    user = get_object_or_404(CustomUser, email=email)
+    refresh = RefreshToken.for_user(user)
+    return JsonResponse(data={
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+    )
