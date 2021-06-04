@@ -1,6 +1,7 @@
 import json
 
 from django.core.mail import send_mail
+from django.core.validators import EmailValidator
 from django.http.response import JsonResponse
 from django.utils.crypto import get_random_string
 from rest_framework import viewsets
@@ -79,8 +80,18 @@ def get_confirm_code(request):
     elif request.content_type == 'application/json':
         body = json.loads(request.body.decode('utf-8'))
         email = body.get('email')
-    user = get_object_or_404(CustomUser, email=email)
+    try:
+        EmailValidator()(email)
+    except Exception as message:
+        return JsonResponse(
+            data={'error': str(message)}, status=400
+        )
     conf_code = get_random_string(length=32)
+    queryset = CustomUser.objects.filter(email=email)
+    if queryset.count():
+        user = queryset.first()
+    else:
+        user = CustomUser(email=email, username=email, role='user')
     user.confirmation_code = conf_code
     user.save()
     send_mail(
