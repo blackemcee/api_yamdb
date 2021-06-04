@@ -39,9 +39,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     category = CategorySerializer
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsUser,
-                          IsModerator)
+    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+    #                       IsUser,
+    #                       IsModerator)
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     filter_class = CategoryFilter
 
