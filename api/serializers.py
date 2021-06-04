@@ -70,7 +70,7 @@ class CommentsSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(),
         default=CurrentUserDefault()
     )
-    review = ReviewSerializer(read_only=True)
+    # review = ReviewSerializer(read_only=True)
 
     class Meta:
         fields = '__all__'
