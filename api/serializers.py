@@ -45,7 +45,6 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         reviews = Review.objects.filter(title=instance.id)
-        print(reviews)
         rating = reviews.all().aggregate(Avg('score'))['score__avg']
         return {
             "id": instance.pk,
