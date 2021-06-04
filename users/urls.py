@@ -10,7 +10,7 @@ v1_router.register('', UserViewSet, basename='Users')
 urlpatterns = [
     path('me/', MeViewSet.as_view(
         {'get': 'retrieve', 'patch': 'update'}),
-        name='Me'),
+         name='Me'),
     path(r'token/', csrf_exempt(get_tokens_for_user),
          name='get_tokens_for_user'
          ),

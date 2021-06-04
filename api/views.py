@@ -1,10 +1,10 @@
 import django_filters.rest_framework
 from django.http.request import QueryDict, MultiValueDict
 from django.shortcuts import get_object_or_404
-from rest_framework import status
-from rest_framework import viewsets, filters, mixins, permissions
+from rest_framework import status, viewsets, filters, mixins, permissions
 from rest_framework.response import Response
 
+from .permissions import IsAdminOrDeny, IsUser, IsModerator, ReadOnly
 from .filters import CategoryFilter
 from .models import Genre, Category, Title, Review
 from .serializers import (GenreSerializer, CategorySerializer,
@@ -22,6 +22,7 @@ class CustomViewSet(mixins.CreateModelMixin,
 class GenreViewSet(CustomViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    permission_classes = (ReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
@@ -29,6 +30,7 @@ class GenreViewSet(CustomViewSet):
 class CategoryViewSet(CustomViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = (ReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
@@ -37,6 +39,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     category = CategorySerializer
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsUser,
+                          IsModerator)
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     filter_class = CategoryFilter
 

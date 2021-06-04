@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import CustomUser
-
 from .permissions import IsAdminOrDeny
 from .serializers import ConfCodeSerializer, UserSerializer
 
