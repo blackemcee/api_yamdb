@@ -5,17 +5,22 @@ from sqlite3 import Error
 
 DATA_CSV = (
     'category',
-    # 'comments', 'genre', 'genre_title',
-    # 'review', 'titles',  # 'users'
+    'comments',
+    'genre',
+    'genre_title',
+    'review',
+    'titles',
+    'users'
 )
 FIELDS = {
-    # 'users', # TODO ТАКОЙ ТАБЛИЦЫ ПОКА НЕТ
+    'users': ('id', 'username', 'email', 'role', 'description', 'first_name',
+              'last_name', 'password', 'is_superuser', 'is_staff', 'bio',),
     'category': ('id', 'name', 'slug',),
-    'comments': ('id', 'review', 'text', 'author', 'pub_date',),
+    'comments': ('id', 'review_id', 'text', 'author_id', 'pub_date',),
     'genre': ('id', 'name', 'slug',),
-    'genre_title': ('id', 'title', 'genre',),  # TODO что за таблица?(в sqlite- есть)
-    'review': ('id', 'title_id', 'text', 'author', 'score', 'pub_date',),
-    'titles': ('id', 'name', 'year', 'category',),
+    'genre_title': ('id', 'title_id', 'genre_id',),
+    'review': ('id', 'title_id', 'text', 'author_id', 'score', 'pub_date',),
+    'titles': ('id', 'name', 'year', 'category_id',),
 
 }
 
@@ -26,7 +31,7 @@ TABLES = {
     'genre_title': 'api_title_genre',
     'review': 'api_review',
     'titles': 'api_title',
-    # 'users': 'users_customuser', # TODO пока не работает(еще нет такой таблицы)
+    'users': 'users_customuser',
 }
 
 
@@ -47,19 +52,21 @@ def create_connection(db_file):
 
 def fill_tables(conn, table, fields, file):
     """this function may fill the tables"""
-    sql = 'INSERT INTO {table}{fields} VALUES{values}'
+    sql = 'INSERT OR IGNORE INTO {table}{fields} VALUES{values}'
     cur = conn.cursor()
     with open(file, 'r') as data:
         for line in csv.DictReader(data):
-            # cur.execute(sql, task)
-            print(line)
-        # conn.commit() # TODO на время тестирования!!!
+            values = tuple(line.values())
+            query = sql.format(table=table, fields=fields, values=values)
+            # print(query)
+            cur.execute(query)
+        conn.commit()
 
 
 def main():
     """main function"""
     path_dir = os.path.abspath(os.getcwd())
-    db = path_dir + 'db.sqlite'
+    db = path_dir + '/' + 'db.sqlite3'
     conn = create_connection(db)
     with conn:
         for file in DATA_CSV:

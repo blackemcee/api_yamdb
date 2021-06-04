@@ -2,16 +2,21 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .views import (GenreViewSet, CategoryViewSet, TitleViewSet, ReviewViewSet, CommentsViewSet)
+from .views import (GenreViewSet, CategoryViewSet, TitleViewSet,
+                    ReviewViewSet, CommentsViewSet)
 
 v1_router = DefaultRouter()
 v1_router.register(r'^genres', GenreViewSet, basename='genres')
 v1_router.register(r'^categories', CategoryViewSet, basename='categories')
 v1_router.register(r'^titles', TitleViewSet, basename='titles')
+
+# todo ЕЩЕ НЕ ПРОВЕРЕНО
 v1_router.register(r'^titles/(?P<title_id>\d+)/reviews',
                    ReviewViewSet, basename='reviews')
-v1_router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
-                   CommentsViewSet, basename='comments')
+v1_router.register(
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
+    CommentsViewSet, basename='comments'
+)
 
 urlpatterns = [
     path('v1/users/', include('users.urls')),

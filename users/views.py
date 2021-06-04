@@ -9,13 +9,13 @@ from .permissions import IsAdminOrDeny
 from .serializers import ConfCodeSerializer, UserSerializer
 
 
-class ConfCodeViewSet (viewsets.ModelViewSet):
+class ConfCodeViewSet(viewsets.ModelViewSet):
     serializer_class = ConfCodeSerializer
     queryset = CustomUser.objects.all()
 
 
-class UserViewSet (viewsets.ModelViewSet):
-    permission_classes = (IsAdminOrDeny, )
+class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminOrDeny,)
     serializer_class = UserSerializer
     filter_backends = (SearchFilter,)
     queryset = CustomUser.objects.all()

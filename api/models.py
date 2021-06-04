@@ -86,7 +86,7 @@ class Review(models.Model):
         unique_together = ('author', 'title',)
 
     def __str__(self):
-        return f'Review<id№{self.pk}, {self.text[:15]}>'
+        return f'Review<id№{self.pk}, Title№{self.title}>'
 
 
 class Comments(models.Model):
@@ -107,4 +107,5 @@ class Comments(models.Model):
     )
 
     def __str__(self):
-        return f'Comments <id№{self.pk}, author:{self.review}, {self.text[:15]}>'
+        return f'Comments <id№{self.pk}, author:{self.review}, ' \
+               f'{self.text[:15]}>'
