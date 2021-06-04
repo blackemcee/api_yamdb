@@ -4,9 +4,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets, filters, mixins, permissions
 from rest_framework.response import Response
 
-from .permissions import IsAdminOrDeny, IsUser, IsModerator, ReadOnly
+from .permissions import IsAdminOrDeny, IsUser, IsModerator, ReadOnly, IsAdminOrModeratorAndReadOnly
 from .filters import CategoryFilter
-from .models import Genre, Category, Title, Review
+from .models import Genre, Category, Title, Review, Comments
 from .serializers import (GenreSerializer, CategorySerializer,
                           TitleSerializer, CommentsSerializer,
                           ReviewSerializer)
@@ -48,17 +48,13 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          )
+                          IsAdminOrModeratorAndReadOnly)
     serializer_class = ReviewSerializer
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         reviews = Review.objects.filter(title__pk=title.pk).all()
         return reviews
-
-    def perform_create(self, serializer):
-        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        serializer.save(author=self.request.user, title=title)
 
     def create(self, request, *args, **kwargs):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -80,8 +76,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentsSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsAdminOrModeratorAndReadOnly)
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
-        return review.comments
+        comments = Comments.objects.filter(review=review.pk)
+        return comments

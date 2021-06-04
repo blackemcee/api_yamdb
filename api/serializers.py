@@ -8,13 +8,13 @@ from .models import Genre, Category, Title, Review, Comments, User
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'slug')
+        fields = '__all__'
         model = Genre
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'slug')
+        fields = '__all__'
         model = Category
 
 
@@ -23,8 +23,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username', read_only=False, queryset=User.objects.all(),
         default=CurrentUserDefault()
     )
-
-    # title = TitleSerializer()
 
     class Meta:
         fields = '__all__'
@@ -47,6 +45,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         reviews = Review.objects.filter(title=instance.id)
+        print(reviews)
         rating = reviews.all().aggregate(Avg('score'))['score__avg']
         return {
             "id": instance.pk,
@@ -70,7 +69,6 @@ class CommentsSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(),
         default=CurrentUserDefault()
     )
-    review = ReviewSerializer(read_only=True)
 
     class Meta:
         fields = '__all__'
