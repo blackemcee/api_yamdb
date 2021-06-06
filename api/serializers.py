@@ -8,13 +8,13 @@ from .models import Genre, Category, Title, Review, Comments, User
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = '__all__'
+        fields = ('name', 'slug',)
         model = Genre
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        fields = '__all__'
+        fields = ('name', 'slug',)
         model = Category
 
 
@@ -27,6 +27,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Review
+        extra_kwargs = {'title': {'write_only': True}}
+
         validators = [
             UniqueTogetherValidator(
                 queryset=Review.objects.all(),
@@ -45,7 +47,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         reviews = Review.objects.filter(title=instance.id)
-        rating = round(reviews.all().aggregate(Avg('score'))['score__avg'])
+        rating = reviews.all().aggregate(Avg('score'))['score__avg']
         return {
             "id": instance.pk,
             "name": instance.name,
@@ -59,8 +61,8 @@ class TitleSerializer(serializers.ModelSerializer):
                 } for genre in instance.genre.all()
             ],
             "category": {
-                "name": instance.category.name,
-                "slug": instance.category.slug
+                "name": instance.category.name if instance.category else None,
+                "slug": instance.category.slug if instance.category else None,
             },
         }
 
@@ -75,4 +77,6 @@ class CommentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
+        # fields = ('id', 'text', 'author', 'pub_date',)
+        extra_kwargs = {'review': {'write_only': True}}
         model = Comments

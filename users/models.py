@@ -51,8 +51,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name='last name', null=True,
         blank=True, max_length=200
     )
-    token = models.CharField(
-        verbose_name='token',
+    confirmation_code = models.CharField(
+        verbose_name='confirmation code',
         null=True,
         blank=True, max_length=200
     )
