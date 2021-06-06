@@ -1,19 +1,14 @@
 import django_filters
 
-from .models import Genre, Title, Category
+from .models import Title
 
 
-class CategoryFilter(django_filters.FilterSet):
-    category = django_filters.ModelChoiceFilter(
-        field_name='category__slug',
-        to_field_name='slug',
-        queryset=Category.objects.all()
-    )
-    genre = django_filters.ModelMultipleChoiceFilter(
-        field_name='genre__slug',
-        to_field_name='slug',
-        queryset=Genre.objects.all()
-    )
+class TitleFilter(django_filters.FilterSet):
+    genre = django_filters.CharFilter(field_name='genre__slug')
+    category = django_filters.CharFilter(field_name='category__slug')
+    name = django_filters.CharFilter(field_name='name',
+                                     lookup_expr='icontains')
+    year = django_filters.NumberFilter(field_name='year')
 
     class Meta:
         model = Title

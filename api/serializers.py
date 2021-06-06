@@ -1,21 +1,9 @@
-from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.fields import CurrentUserDefault
 from rest_framework.validators import UniqueTogetherValidator
+from django.db.models import Avg
 
 from .models import Genre, Category, Title, Review, Comments, User
-
-
-class GenreSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ('name', 'slug',)
-        model = Genre
-
-
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ('name', 'slug',)
-        model = Category
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -37,12 +25,26 @@ class ReviewSerializer(serializers.ModelSerializer):
         ]
 
 
-class TitleSerializer(serializers.ModelSerializer):
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genre
+        lookup_field = 'slug'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('name', 'slug')
+        model = Category
+        lookup_field = 'slug'
+
+
+class TitleReadSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
 
     class Meta:
-        fields = ('id', 'name', 'year', 'description', 'genre', 'category',)
+        fields = '__all__'
         model = Title
 
     def to_representation(self, instance):
@@ -67,6 +69,19 @@ class TitleSerializer(serializers.ModelSerializer):
         }
 
 
+class TitleCreateSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Genre.objects.all(), many=True
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all()
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Title
+
+
 class CommentsSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
@@ -77,6 +92,5 @@ class CommentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
-        # fields = ('id', 'text', 'author', 'pub_date',)
         extra_kwargs = {'review': {'write_only': True}}
         model = Comments

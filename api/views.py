@@ -4,11 +4,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets, filters, mixins, permissions
 from rest_framework.response import Response
 
-from .filters import CategoryFilter
+from .filters import TitleFilter
 from .models import Genre, Category, Title, Review, Comments
-from .permissions import IsUser, IsAdminOrModeratorAndReadOnly, IsAdmin
+from .permissions import IsUser, IsAdminOrModeratorAndReadOnly, ReadOnly
 from .serializers import (GenreSerializer, CategorySerializer,
-                          TitleSerializer, CommentsSerializer,
+                          TitleReadSerializer, CommentsSerializer, TitleCreateSerializer,
                           ReviewSerializer)
 
 
@@ -22,34 +22,38 @@ class CustomViewSet(mixins.CreateModelMixin,
 class GenreViewSet(CustomViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsAdmin)
+    permission_classes = (ReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = 'slug'
 
 
-# TODO тесты валятся, т.к. некорректынй url- надо преедавать slug
-# todo  как необязательный параметр, а по умолчанию передается pk
+# TODO добавить пермишшены
 class CategoryViewSet(CustomViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsAdmin)
+    permission_classes = (ReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = 'slug'
 
 
-# TODO проверить, сохраняется ли category при post запросе.
+# TODO добавить пермишшены
 class TitleViewSet(viewsets.ModelViewSet):
     category = CategorySerializer
     queryset = Title.objects.all()
-    serializer_class = TitleSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsAdmin)
+    serializer_class = TitleReadSerializer
+    permission_classes = (ReadOnly,)
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filter_class = CategoryFilter
+    filter_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return TitleCreateSerializer
+        return TitleReadSerializer
 
 
+# TODO добавить пермишшены
 class ReviewViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsAdminOrModeratorAndReadOnly)
@@ -78,9 +82,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
             serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-# TODO пермишшены не настроены
-# TODO PATCH Автор комментария, модератор или администратор.
-# TODO DELETE Автор комментария, модератор или администратор.
+# TODO добавить пермишшены
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentsSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
