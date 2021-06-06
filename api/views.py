@@ -80,8 +80,11 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     """
-    url: host:port/api/v1/titles/{title_id}/reviews/ (reviews by using title id)
-    url: host:port/api/v1/titles/{title_id}/reviews/{review_id}/ (review by using review id)
+    url: host:port/api/v1/titles/{title_id}/reviews/ :
+    (reviews by using title id)
+
+    url: host:port/api/v1/titles/{title_id}/reviews/{review_id}/ :
+    (review by using review id)
 
     Available method:
     GET: Any
@@ -121,7 +124,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentsViewSet(viewsets.ModelViewSet):
     """
     url: host:port/api/v1/titles/{title_id}/reviews/{review_id}/comments/
-    url: host:port/api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/
+    url: host:port/api/v1/titles/{title_id}/reviews/{review_id}/comments/
+    {comment_id}/
 
     Available method:
     GET: Any
