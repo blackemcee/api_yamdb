@@ -8,8 +8,8 @@ from .filters import TitleFilter
 from .models import Genre, Category, Title, Review, Comments
 from .permissions import IsUser, IsAdminOrModeratorAndReadOnly, ReadOnly
 from .serializers import (GenreSerializer, CategorySerializer,
-                          TitleReadSerializer, CommentsSerializer, TitleCreateSerializer,
-                          ReviewSerializer)
+                          TitleReadSerializer, CommentsSerializer,
+                          TitleCreateSerializer, ReviewSerializer)
 
 
 class CustomViewSet(mixins.CreateModelMixin,

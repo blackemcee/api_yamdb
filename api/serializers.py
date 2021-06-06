@@ -1,28 +1,9 @@
+from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.fields import CurrentUserDefault
 from rest_framework.validators import UniqueTogetherValidator
-from django.db.models import Avg
 
 from .models import Genre, Category, Title, Review, Comments, User
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        slug_field='username', read_only=False, queryset=User.objects.all(),
-        default=CurrentUserDefault()
-    )
-
-    class Meta:
-        fields = '__all__'
-        model = Review
-        extra_kwargs = {'title': {'write_only': True}}
-
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=['author', 'title']
-            )
-        ]
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -94,3 +75,24 @@ class CommentsSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {'review': {'write_only': True}}
         model = Comments
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=False,
+        queryset=User.objects.all(),
+        default=CurrentUserDefault()
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Review
+        extra_kwargs = {'title': {'write_only': True}}
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=['author', 'title']
+            )
+        ]
