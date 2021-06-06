@@ -1,10 +1,11 @@
 import django_filters.rest_framework
-from rest_framework import viewsets, filters, mixins, permissions
+from rest_framework import viewsets, filters, mixins
 
-from .permissions import IsAdminOrDeny, IsUser, IsModerator, ReadOnly
-from .filters import CategoryFilter
+from .permissions import ReadOnly
+from .filters import TitleFilter
 from .models import Genre, Category, Title
-from .serializers import GenreSerializer, CategorySerializer, TitleSerializer
+from .serializers import (GenreSerializer, CategorySerializer,
+                          TitleReadSerializer, TitleCreateSerializer)
 
 
 class CustomViewSet(mixins.CreateModelMixin,
@@ -20,6 +21,7 @@ class GenreViewSet(CustomViewSet):
     permission_classes = (ReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class CategoryViewSet(CustomViewSet):
@@ -28,14 +30,18 @@ class CategoryViewSet(CustomViewSet):
     permission_classes = (ReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     category = CategorySerializer
     queryset = Title.objects.all()
-    serializer_class = TitleSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsUser,
-                          IsModerator)
+    serializer_class = TitleReadSerializer
+    permission_classes = (ReadOnly,)
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filter_class = CategoryFilter
+    filter_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return TitleCreateSerializer
+        return TitleReadSerializer

@@ -8,7 +8,7 @@ class ReadOnly(permissions.BasePermission):
             request.method in permissions.SAFE_METHODS or
             request.user and
             request.user.is_authenticated and
-            request.user.role == 'admin'
+            (request.user.role == 'admin' or request.user.is_superuser)
         )
 
 
