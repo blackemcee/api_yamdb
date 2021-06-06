@@ -90,7 +90,6 @@ class Review(models.Model):
 
 
 class Comments(models.Model):
-    """Модель представления комментариев для рецензии"""
     text = models.TextField(null=False)
     pub_date = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(
