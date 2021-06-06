@@ -7,10 +7,12 @@ from django.utils.crypto import get_random_string
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import CustomUser
+
 from .permissions import IsAdminOrDeny
 from .serializers import UserSerializer
 
@@ -30,6 +32,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class MeViewSet(viewsets.ViewSet):
+    permission_classes = (IsAuthenticated,)
 
     def retrieve(self, request, pk=None):
         user = get_object_or_404(CustomUser, pk=request.user.pk)
