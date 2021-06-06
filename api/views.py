@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from .filters import TitleFilter
 from .models import Genre, Category, Title, Review, Comments
-from .permissions import IsUser, IsAdminOrModeratorAndReadOnly, ReadOnly
+from .permissions import IsOwner, IsAdmin, IsModerator
 from .serializers import (GenreSerializer, CategorySerializer,
                           TitleReadSerializer, CommentsSerializer,
                           TitleCreateSerializer, ReviewSerializer)
@@ -16,34 +16,59 @@ class CustomViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
                     mixins.DestroyModelMixin,
                     viewsets.GenericViewSet):
+    """It's a basic set for GET, POST, PUT methods"""
     pass
 
 
 class GenreViewSet(CustomViewSet):
+    """
+    url host:port/api/v1/genres/
+    Available method:
+    GET: Any
+    POST: Only Admin
+    DELETE: Only Admin
+    """
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (ReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsAdmin,)
+
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
 
 
-# TODO добавить пермишшены
 class CategoryViewSet(CustomViewSet):
+    """
+    url host:port/api/v1/categories/
+    Available method:
+    GET: Any
+    POST: Only Admin
+    DELETE: Only Admin
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (ReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsAdmin,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
 
 
-# TODO добавить пермишшены
 class TitleViewSet(viewsets.ModelViewSet):
+    """
+    url: host:port/api/v1/titles/{titles_id}/ (title by using title id)
+    url: host:port/api/v1/titles/ (all titles)
+    Available method:
+    GET: Any
+    POST: Only Admin
+    PATCH: Only Admin
+    DELETE: Only Admin
+    """
     category = CategorySerializer
     queryset = Title.objects.all()
     serializer_class = TitleReadSerializer
-    permission_classes = (ReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsAdmin,)
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     filter_class = TitleFilter
 
@@ -53,10 +78,21 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleReadSerializer
 
 
-# TODO добавить пермишшены
 class ReviewViewSet(viewsets.ModelViewSet):
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsAdminOrModeratorAndReadOnly)
+    """
+    url: host:port/api/v1/titles/{title_id}/reviews/ (reviews by using title id)
+    url: host:port/api/v1/titles/{title_id}/reviews/{review_id}/ (review by using review id)
+
+    Available method:
+    GET: Any
+    POST: Only Admin
+    PATCH: Only Admin
+    DELETE: Only Admin
+    """
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwner | IsAdmin | IsModerator,
+    )
     serializer_class = ReviewSerializer
 
     def get_queryset(self):
@@ -82,14 +118,22 @@ class ReviewViewSet(viewsets.ModelViewSet):
             serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-# TODO добавить пермишшены
 class CommentsViewSet(viewsets.ModelViewSet):
+    """
+    url: host:port/api/v1/titles/{title_id}/reviews/{review_id}/comments/
+    url: host:port/api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/
+
+    Available method:
+    GET: Any
+    POST: Only Admin
+    PATCH: Only Admin
+    DELETE: Only Admin
+    """
     serializer_class = CommentsSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsUser,
-                          # IsAdmin,
-                          # IsModerator,
-                          )
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwner | IsAdmin | IsModerator,
+    )
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
