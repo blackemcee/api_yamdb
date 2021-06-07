@@ -1,19 +1,20 @@
 import json
 
 from django.core.mail import send_mail
-from django.core.validators import EmailValidator
 from django.http.response import JsonResponse
 from django.utils.crypto import get_random_string
 from rest_framework import viewsets
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import CustomUser
 
 from .permissions import UserPermision
-from .serializers import UserSerializer
+from .serializers import EmailSerializer, TokenSerializer, UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -30,10 +31,8 @@ class UserViewSet(viewsets.ModelViewSet):
         user = get_object_or_404(CustomUser, username=username)
         if user.role != 'admin':
             role = user.role
-        serializer = UserSerializer(user)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(role=role)
-            return Response(serializer.data)
+        self.serializer.save(role=role)
+        return Response(self.serializer.data)
 
     def destroy(self, request, username=None):
         if self.kwargs.get('username') == 'me':
@@ -52,7 +51,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return user
 
 
-def get_tokens_for_user(request):
+def get_tokens_for_user1(request):
     email = ''
     if request.content_type == 'multipart/form-data':
         email = request.POST.get('email')
@@ -74,19 +73,15 @@ def get_tokens_for_user(request):
     return JsonResponse(data=data, status=status)
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def get_confirm_code(request):
-    email = ''
-    if request.content_type == 'multipart/form-data':
-        email = request.POST.get('email')
-    elif request.content_type == 'application/json':
-        body = json.loads(request.body.decode('utf-8'))
-        email = body.get('email')
-    try:
-        EmailValidator()(email)
-    except Exception as message:
+    serializer = EmailSerializer(data=request.data)
+    if not serializer.is_valid():
         return JsonResponse(
-            data={'error': str(message)}, status=400
+            data=serializer.errors, status=400
         )
+    email = serializer.validated_data.get('email')
     conf_code = get_random_string(length=32)
     queryset = CustomUser.objects.filter(email=email)
     if queryset.count():
@@ -102,6 +97,22 @@ def get_confirm_code(request):
         [f'{email}'],
         fail_silently=False,
     )
-    return JsonResponse(
-        data={'email': email}
-    )
+    return JsonResponse(serializer.validated_data)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def get_tokens_for_user(request):
+    serializer = TokenSerializer(data=request.data)
+    if not serializer.is_valid():
+        return JsonResponse(
+            data=serializer.errors, status=400
+        )
+    user = serializer.validated_data
+    refresh = RefreshToken.for_user(user)
+    data = {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+    status = 200
+    return JsonResponse(data=data, status=status)
