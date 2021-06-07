@@ -5,8 +5,7 @@ class UserPermision(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return request.user.is_authenticated and (
-            request.user.role == 'admin'
-            or request.user.is_superuser
+            request.user.is_admin
             or request.user == obj)
 
     def has_permission(self, request, view):
@@ -14,5 +13,4 @@ class UserPermision(permissions.BasePermission):
         if view.kwargs.get('username') == 'me':
             return permission
         else:
-            return permission and (
-                request.user.role == 'admin' or request.user.is_superuser)
+            return permission and request.user.is_admin

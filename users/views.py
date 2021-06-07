@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.core.mail import send_mail
 from django.http.response import JsonResponse
 from django.utils.crypto import get_random_string
@@ -29,7 +30,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if username == 'me':
             username = request.user.username
         user = get_object_or_404(CustomUser, username=username)
-        if user.role != 'admin':
+        if not user.is_admin:
             role = user.role
         self.serializer.save(role=role)
         return Response(self.serializer.data)
@@ -84,17 +85,17 @@ def get_confirm_code(request):
     email = serializer.validated_data.get('email')
     conf_code = get_random_string(length=32)
     queryset = CustomUser.objects.filter(email=email)
-    if queryset.count():
+    if queryset.exists():
         user = queryset.first()
     else:
         user = CustomUser(email=email, username=email, role='user')
     user.confirmation_code = conf_code
     user.save()
     send_mail(
-        'Yamdb confirmation_code',
-        f'Yamdb confirmation code : {conf_code}',
-        'Yamdb',
-        [f'{email}'],
+        subject='Yamdb confirmation_code',
+        message=f'Yamdb confirmation code : {conf_code}',
+        from_email=f'{settings.ADMIN_EMAIL}',
+        recipient_list=[f'{email}'],
         fail_silently=False,
     )
     return JsonResponse(serializer.validated_data)

@@ -27,6 +27,6 @@ class TokenSerializer(serializers.Serializer):
             email=data.get('email'),
             confirmation_code=data.get('confirmation_code')
         )
-        if queryset.count():
+        if queryset.exists():
             return queryset.first()
         raise serializers.ValidationError("Bad credentials")
