@@ -10,8 +10,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from api_yamdb import settings as config
 from users.models import CustomUser
-
 from .permissions import UserPermision
 from .serializers import EmailSerializer, TokenSerializer, UserSerializer
 
@@ -64,7 +64,7 @@ def get_confirm_code(request):
     if queryset.exists():
         user = queryset.first()
     else:
-        user = CustomUser(email=email, username=email, role='user')
+        user = CustomUser(email=email, username=email, role=config.USER_ROLE)
     user.confirmation_code = conf_code
     user.save()
     send_mail(

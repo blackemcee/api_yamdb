@@ -123,3 +123,8 @@ SIMPLE_JWT = {
 ADMIN_EMAIL = 'admin@yamdb.true'
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
+
+# roles
+ADMIN_ROLE = 'admin'
+MODERATOR_ROLE = 'moderator'
+USER_ROLE = 'user'

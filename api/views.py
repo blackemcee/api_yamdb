@@ -5,7 +5,7 @@ from rest_framework import status, viewsets, filters, mixins, permissions
 from rest_framework.response import Response
 
 from .filters import TitleFilter
-from .models import Genre, Category, Title, Review, Comments
+from .models import Genre, Category, Title, Review, Comment
 from .permissions import IsOwner, IsAdmin, IsModerator
 from .serializers import (GenreSerializer, CategorySerializer,
                           TitleReadSerializer, CommentsSerializer,
@@ -119,6 +119,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return Response(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    # TODO create переопределить на perform_create
+    # def perform_create(self, serializer):
+    #     pass
+
 
 class CommentsViewSet(viewsets.ModelViewSet):
     """
@@ -140,8 +144,12 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
-        comments = Comments.objects.filter(review=review.pk)
+        comments = Comment.objects.filter(review=review.pk)
         return comments
+
+    # TODO create переопределить на perform_create
+    # def perform_create(self, serializer):
+    #     pass
 
     def create(self, request, *args, **kwargs):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.fields import CurrentUserDefault
 from rest_framework.validators import UniqueTogetherValidator
 
-from .models import Genre, Category, Title, Review, Comments, User
+from .models import Genre, Category, Title, Review, Comment, User
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -74,7 +74,7 @@ class CommentsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         extra_kwargs = {'review': {'write_only': True}}
-        model = Comments
+        model = Comment
 
 
 class ReviewSerializer(serializers.ModelSerializer):
