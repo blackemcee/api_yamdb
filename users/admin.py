@@ -21,8 +21,7 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('email', 'username', 'password1',
                        'password2', 'role'
                        )
-        }
-        ),
+        }),
     )
     search_fields = ('email', 'role')
     ordering = ('email',)

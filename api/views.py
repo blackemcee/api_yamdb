@@ -1,12 +1,10 @@
 import django_filters.rest_framework
-from django.http.request import QueryDict, MultiValueDict
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets, filters, mixins, permissions
-from rest_framework.response import Response
+from rest_framework import viewsets, filters, mixins, permissions
 
 from .filters import TitleFilter
 from .models import Genre, Category, Title, Review, Comment
-from .permissions import IsOwner, IsAdmin, IsModerator
+from .permissions import IsOwner, IsAdmin, IsModerator  # , IsUser
 from .serializers import (GenreSerializer, CategorySerializer,
                           TitleReadSerializer, CommentsSerializer,
                           TitleCreateSerializer, ReviewSerializer)
@@ -102,26 +100,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
         reviews = Review.objects.filter(title__pk=title.pk).all()
         return reviews
 
-    def create(self, request, *args, **kwargs):
+    def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        dictionary = dict(request.data)
-        dictionary.update({'title': [title.pk]})
-        qdict = QueryDict('', mutable=True)
-        qdict.update(MultiValueDict(dictionary))
-
-        serializer = self.get_serializer(data=qdict)
-
-        result = serializer.is_valid(raise_exception=True)
-        if result is False:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    # TODO create переопределить на perform_create
-    # def perform_create(self, serializer):
-    #     pass
+        serializer.save(title=title)
 
 
 class CommentsViewSet(viewsets.ModelViewSet):
@@ -147,23 +128,6 @@ class CommentsViewSet(viewsets.ModelViewSet):
         comments = Comment.objects.filter(review=review.pk)
         return comments
 
-    # TODO create переопределить на perform_create
-    # def perform_create(self, serializer):
-    #     pass
-
-    def create(self, request, *args, **kwargs):
-        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+    def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
-        dictionary = dict(request.data)
-        dictionary.update({'title': [title.pk]})
-        dictionary.update({'review': [review.pk]})
-        qdict = QueryDict('', mutable=True)
-        qdict.update(MultiValueDict(dictionary))
-
-        serializer = self.get_serializer(data=qdict)
-
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        serializer.save(review=review)

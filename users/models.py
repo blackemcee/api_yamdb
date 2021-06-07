@@ -62,7 +62,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     class Meta:
-
         ordering = ['username']
         constraints = [
             models.CheckConstraint(
@@ -80,8 +79,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_moderator(self):
-        self.role == 'moderator'
+        return self.role == 'moderator'
 
     @property
     def is_user(self):
-        self.role == 'user'
+        return self.role == 'user'

@@ -4,7 +4,6 @@ from users.models import CustomUser
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = CustomUser
         fields = (
@@ -13,16 +12,15 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
-class EmailSerializer(serializers.Serializer):
+class EmailSerializer(serializers.Serializer):  # noqa
     email = serializers.EmailField()
 
 
-class TokenSerializer(serializers.Serializer):
+class TokenSerializer(serializers.Serializer):  # noqa
     email = serializers.EmailField()
     confirmation_code = serializers.CharField()
 
     def validate(self, data):
-        breakpoint()
         queryset = CustomUser.objects.filter(
             email=data.get('email'),
             confirmation_code=data.get('confirmation_code')

@@ -1,7 +1,6 @@
 from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.fields import CurrentUserDefault
-from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Genre, Category, Title, Review, Comment, User
 
@@ -73,7 +72,12 @@ class CommentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
-        extra_kwargs = {'review': {'write_only': True}}
+        extra_kwargs = {
+            'review': {
+                'write_only': True,
+                'required': False
+            }
+        }
         model = Comment
 
 
@@ -88,11 +92,18 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Review
-        extra_kwargs = {'title': {'write_only': True}}
+        extra_kwargs = {
+            'title': {'write_only': True,
+                      'required': False}
+        }
 
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=['author', 'title']
-            )
-        ]
+    def validate_author(self, value):
+        if self.context['request'].method == 'POST':
+            review = Review.objects.filter(
+                title__pk=self.context['view'].kwargs.get('title_id'),
+                author=self.context['request'].user
+            ).first()
+            if review:
+                raise serializers.ValidationError(
+                    'Author and title must be unique for Review')
+        return value
