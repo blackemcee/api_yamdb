@@ -26,7 +26,7 @@ FIELDS = {
 
 TABLES = {
     'category': 'api_category',
-    'comments': 'api_comments',
+    'comments': 'api_comment',
     'genre': 'api_genre',
     'genre_title': 'api_title_genre',
     'review': 'api_review',
