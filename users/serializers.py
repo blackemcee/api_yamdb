@@ -11,3 +11,22 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name', 'last_name', 'username',
             'bio', 'email', 'role'
         )
+
+
+class EmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class TokenSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    confirmation_code = serializers.CharField()
+
+    def validate(self, data):
+        breakpoint()
+        queryset = CustomUser.objects.filter(
+            email=data.get('email'),
+            confirmation_code=data.get('confirmation_code')
+        )
+        if queryset.exists():
+            return queryset.first()
+        raise serializers.ValidationError("Bad credentials")

@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.db.models.enums import TextChoices
-from django.utils.translation import gettext_lazy as _
 
 from .managers import CustomUserManager
 
@@ -14,13 +13,13 @@ class Roles(TextChoices):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(
-        _('password'),
+        'password',
         null=True, blank=True, max_length=128
     )
 
     last_login = None
 
-    email = models.EmailField(_('email address'), unique=True, blank=False)
+    email = models.EmailField('email address', unique=True, blank=False)
 
     is_staff = models.BooleanField(default=True, null=True)
     username = models.CharField(
@@ -62,10 +61,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     objects = CustomUserManager()
 
-    def __str__(self):
-        return f'{self.email}----{self.username}-----{self.role}'
-
     class Meta:
+
         ordering = ['username']
         constraints = [
             models.CheckConstraint(
@@ -73,3 +70,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                 check=models.Q(role__in=Roles.values),
             )
         ]
+
+    def __str__(self):
+        return f'{self.email}----{self.username}-----{self.role}'
+
+    @property
+    def is_admin(self):
+        return self.is_superuser or self.role == 'admin'
+
+    @property
+    def is_moderator(self):
+        self.role == 'moderator'
+
+    @property
+    def is_user(self):
+        self.role == 'user'
