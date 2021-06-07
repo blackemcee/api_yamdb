@@ -54,7 +54,7 @@ def fill_tables(conn, table, fields, file):
     """this function may fill the tables"""
     sql = 'INSERT OR IGNORE INTO {table}{fields} VALUES{values}'
     cur = conn.cursor()
-    with open(file, 'r') as data:
+    with open(file, 'r', errors="ignore") as data:
         for line in csv.DictReader(data):
             values = tuple(line.values())
             query = sql.format(table=table, fields=fields, values=values)

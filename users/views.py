@@ -7,50 +7,49 @@ from django.utils.crypto import get_random_string
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import CustomUser
 
-from .permissions import IsAdminOrDeny
+from .permissions import UserPermision
 from .serializers import UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminOrDeny,)
+    permission_classes = (UserPermision,)
     serializer_class = UserSerializer
     filter_backends = (SearchFilter,)
     queryset = CustomUser.objects.all()
     search_fields = ('username',)
     lookup_field = 'username'
 
-    def perform_update(self, serializer):
-        username = self.kwargs.get('username')
-        get_object_or_404(CustomUser, username=username)
-        serializer.save()
-
-
-class MeViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticated,)
-
-    def retrieve(self, request, pk=None):
-        user = get_object_or_404(CustomUser, pk=request.user.pk)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
-
-    def update(self, request, pk=None):
-        user = get_object_or_404(CustomUser, pk=request.user.pk)
-        serializer = UserSerializer(
-            instance=user,
-            partial=True,
-            data=request.data
-        )
+    def preform_update(self, request, username=None):
+        if username == 'me':
+            username = request.user.username
+        user = get_object_or_404(CustomUser, username=username)
         if user.role != 'admin':
             role = user.role
+        serializer = UserSerializer(user)
         if serializer.is_valid(raise_exception=True):
             serializer.save(role=role)
             return Response(serializer.data)
+
+    def destroy(self, request, username=None):
+        if self.kwargs.get('username') == 'me':
+            response = {'message': 'Delete function is not offered.'}
+            return Response(response, status=405)
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=204)
+
+    def get_object(self):
+        username = self.kwargs.get('username')
+        if username == 'me':
+            username = self.request.user.username
+        user = get_object_or_404(CustomUser, username=username)
+        self.check_object_permissions(self.request, user)
+        return user
 
 
 def get_tokens_for_user(request):
