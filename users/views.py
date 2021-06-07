@@ -1,5 +1,3 @@
-import json
-
 from django.conf import settings
 from django.core.mail import send_mail
 from django.http.response import JsonResponse
@@ -52,28 +50,6 @@ class UserViewSet(viewsets.ModelViewSet):
         return user
 
 
-def get_tokens_for_user1(request):
-    email = ''
-    if request.content_type == 'multipart/form-data':
-        email = request.POST.get('email')
-        confirmation_code = request.POST.get('confirmation_code')
-    elif request.content_type == 'application/json':
-        body = json.loads(request.body.decode('utf-8'))
-        email = body.get('email')
-        confirmation_code = body.get('confirmation_code')
-    user = get_object_or_404(CustomUser, email=email)
-    data = {'answer': 'confirmation_code is not valid'}
-    status = 400
-    if user.confirmation_code == confirmation_code:
-        refresh = RefreshToken.for_user(user)
-        data = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
-        status = 200
-    return JsonResponse(data=data, status=status)
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_confirm_code(request):
@@ -103,7 +79,7 @@ def get_confirm_code(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def get_tokens_for_user(request):
+def get_token(request):
     serializer = TokenSerializer(data=request.data)
     if not serializer.is_valid():
         return JsonResponse(
