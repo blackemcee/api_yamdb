@@ -4,7 +4,7 @@ from rest_framework import viewsets, filters, mixins, permissions
 
 from .filters import TitleFilter
 from .models import Genre, Category, Title, Review, Comment
-from .permissions import IsOwner, IsAdmin, IsModerator  # , IsUser
+from .permissions import IsOwner, IsAdmin, IsModerator
 from .serializers import (GenreSerializer, CategorySerializer,
                           TitleReadSerializer, CommentsSerializer,
                           TitleCreateSerializer, ReviewSerializer)
