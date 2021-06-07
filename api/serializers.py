@@ -8,14 +8,14 @@ from .models import Genre, Category, Title, Review, Comments, User
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'slug')
+        exclude = ('id',)
         model = Genre
         lookup_field = 'slug'
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'slug')
+        exclude = ('id',)
         model = Category
         lookup_field = 'slug'
 

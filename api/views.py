@@ -32,7 +32,6 @@ class GenreViewSet(CustomViewSet):
     serializer_class = GenreSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsAdmin,)
-
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'

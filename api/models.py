@@ -1,6 +1,7 @@
 import django.core.validators as validators
 from django.contrib.auth import get_user_model
 from django.db import models
+from .validators import title_year_validator
 
 User = get_user_model()
 
@@ -10,7 +11,11 @@ class Category(models.Model):
         'Category name',
         max_length=100
     )
-    slug = models.SlugField(max_length=20, unique=True)
+    slug = models.SlugField(
+        'Category slug',
+        max_length=20,
+        unique=True
+    )
 
     def __str__(self):
         return self.name
@@ -21,7 +26,11 @@ class Genre(models.Model):
         'Genre name',
         max_length=100
     )
-    slug = models.SlugField(max_length=20, unique=True)
+    slug = models.SlugField(
+        'Genre slug',
+        max_length=20,
+        unique=True
+    )
 
     def __str__(self):
         return self.name
@@ -35,7 +44,8 @@ class Title(models.Model):
     year = models.IntegerField(
         'Title year',
         null=True,
-        blank=True
+        blank=True,
+        validators=(title_year_validator,)
     )
     description = models.TextField(
         'Title description',
@@ -44,18 +54,20 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(
         Genre,
+        verbose_name='Title genre',
         null=True,
         blank=True
     )
     category = models.ForeignKey(
         Category,
+        verbose_name='Title category',
         on_delete=models.SET_NULL,
         null=True,
         blank=True
     )
 
     def get_genres(self):
-        return '\n'.join([str(genre) for genre in self.genre.all()])
+        return '\n'.join(Genre.objects.values_list('name', flat=True))
 
     def __str__(self):
         return self.name
