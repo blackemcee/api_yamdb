@@ -1,6 +1,5 @@
 import django_filters.rest_framework
 from django.db.models import Avg
-from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters, mixins, permissions
 
@@ -65,8 +64,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     DELETE: Only Admin
     """
     category = CategorySerializer
-    queryset = Title.objects.annotate(
-        rating=Coalesce(Avg('reviews__score'), None)).all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score')).all()
     serializer_class = TitleReadSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsAdmin,)
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
