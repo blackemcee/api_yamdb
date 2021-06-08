@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.db.models.enums import TextChoices
 
+from api_yamdb import settings as config
 from .managers import CustomUserManager
 
 
@@ -75,12 +76,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_admin(self):
-        return self.is_superuser or self.role == 'admin'
+        return self.is_superuser or self.role == config.ADMIN_ROLE
 
     @property
     def is_moderator(self):
-        return self.role == 'moderator'
+        return self.role == config.MODERATOR_ROLE
 
     @property
     def is_user(self):
-        return self.role == 'user'
+        return self.role == config.USER_ROLE

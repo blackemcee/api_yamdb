@@ -22,31 +22,16 @@ class CategorySerializer(serializers.ModelSerializer):
 class TitleReadSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
+    rating = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         fields = '__all__'
         model = Title
 
-    def to_representation(self, instance):
-        reviews = Review.objects.filter(title=instance.id)
+    def get_rating(self, obj):  # noqa
+        reviews = Review.objects.filter(title=obj.id)
         rating = reviews.all().aggregate(Avg('score'))['score__avg']
-        return {
-            "id": instance.pk,
-            "name": instance.name,
-            "year": instance.year,
-            "rating": rating,
-            "description": instance.description,
-            "genre": [
-                {
-                    "name": genre.name,
-                    "slug": genre.slug,
-                } for genre in instance.genre.all()
-            ],
-            "category": {
-                "name": instance.category.name if instance.category else None,
-                "slug": instance.category.slug if instance.category else None,
-            },
-        }
+        return rating
 
 
 class TitleCreateSerializer(serializers.ModelSerializer):

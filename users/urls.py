@@ -8,10 +8,8 @@ v1_router.register('', UserViewSet, basename='users')
 
 urlpatterns = [
     path(r'token/', get_token,
-         name='get_tokens_for_user'
-         ),
+         name='get_tokens_for_user'),
     path(r'email/', get_confirm_code,
-         name='get_confirm_code'
-         ),
-    path('', include(v1_router.urls)),
+         name='get_confirm_code'),
+    path(r'users/', include(v1_router.urls)),
 ]
